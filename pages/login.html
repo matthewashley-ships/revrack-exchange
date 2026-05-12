@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — RevRack Exchange</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="../assets/css/main.css" />
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml" />
+  <style>
+    .login-bg {
+      min-height: 100vh; background: #080808;
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px 20px;
+    }
+    .login-wrap { width: 100%; max-width: 380px; }
+    .login-back { font-size: 11px; color: #444; display: flex; align-items: center; gap: 6px; margin-bottom: 32px; transition: color 0.15s; }
+    .login-back:hover { color: #888; }
+    .step { display: none; }
+    .step.active { display: block; }
+    .two-fa-hint { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 20px; line-height: 1.6; }
+    .divider-line { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+    .divider-line::before, .divider-line::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
+    .divider-line span { font-size: 11px; color: var(--text-muted); }
+    .role-badge { display: inline-block; font-size: 10px; padding: 3px 10px; border-radius: 2px; background: #1a1108; color: #e8840a; border: 0.5px solid #2e1e08; }
+  </style>
+</head>
+<body>
+<div class="login-bg">
+  <div class="login-wrap">
+    <a href="../index.html" class="login-back">← Back to exchange</a>
+
+    <!-- Step 1: Credentials -->
+    <div class="step active" id="step1">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+            <polygon points="14,2 25,8 25,20 14,26 3,20 3,8" stroke="#333" stroke-width="1.5" fill="#111"/>
+            <line x1="8" y1="12" x2="20" y2="12" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="8" y1="16.5" x2="17" y2="16.5" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>RevRack Exchange</span>
+        </div>
+        <div class="auth-title">Sign in</div>
+        <div class="auth-sub">Members only. All access monitored.</div>
+
+        <div class="form-error" id="loginError"></div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" id="loginEmail" placeholder="you@company.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="loginPassword" placeholder="••••••••••••" autocomplete="current-password" />
+        </div>
+
+        <button class="form-submit" id="loginBtn" onclick="handleLogin()">Continue →</button>
+
+        <div class="form-note">
+          Don't have access? <a href="apply.html">Request an invitation</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: 2FA -->
+    <div class="step" id="step2">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+            <polygon points="14,2 25,8 25,20 14,26 3,20 3,8" stroke="#333" stroke-width="1.5" fill="#111"/>
+            <line x1="8" y1="12" x2="20" y2="12" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="8" y1="16.5" x2="17" y2="16.5" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>RevRack Exchange</span>
+        </div>
+        <div class="auth-title">Two-factor verification</div>
+        <div class="two-fa-hint">Enter the 6-digit code from your authenticator app or the code sent to your email.</div>
+
+        <div class="form-error" id="otpError"></div>
+
+        <div class="otp-wrap" id="otpWrap">
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" />
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" />
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" />
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" />
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" />
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" />
+        </div>
+
+        <button class="form-submit" onclick="handleOTP()">Verify & sign in →</button>
+        <div class="form-note"><a href="#" onclick="goBack()">← Use a different account</a></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script>
+  // OTP input — auto-advance
+  document.querySelectorAll('.otp-input').forEach((input, i, inputs) => {
+    input.addEventListener('input', () => {
+      if (input.value && i < inputs.length - 1) inputs[i + 1].focus();
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !input.value && i > 0) inputs[i - 1].focus();
+    });
+    input.addEventListener('paste', (e) => {
+      const text = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+      inputs.forEach((inp, j) => { inp.value = text[j] || ''; });
+      e.preventDefault();
+    });
+  });
+
+  let pendingUser = null;
+
+  async function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+    const btn = document.getElementById('loginBtn');
+
+    if (!email || !password) {
+      showError(errEl, 'Please enter your email and password.');
+      return;
+    }
+
+    btn.textContent = 'Verifying…';
+    btn.disabled = true;
+
+    try {
+      // ── AUTHENTICATION HOOK ──────────────────────────────────
+      // Replace this block with your auth provider:
+      // Options: any standard auth provider (JWT-based)
+      //
+      // Example with JWT auth provider:
+      // const { data, error } = await authProvider.signIn({ email, password });
+      // if (error) throw new Error(error.message);
+      // pendingUser = { email, role: data.user.role };
+      //
+      // For now: validate against Airtable Members table
+      const members = await fetchMember(email, password);
+      if (!members) throw new Error('Invalid credentials');
+      pendingUser = members;
+      // ─────────────────────────────────────────────────────────
+
+      // Move to 2FA step
+      document.getElementById('step1').classList.remove('active');
+      document.getElementById('step2').classList.add('active');
+      document.querySelector('.otp-input').focus();
+
+    } catch (err) {
+      showError(errEl, err.message || 'Sign in failed. Please try again.');
+      btn.textContent = 'Continue →';
+      btn.disabled = false;
+    }
+  }
+
+  async function fetchMember(email, password) {
+    // Validates credentials against Airtable Members table
+    // In production: use a secure auth provider, NEVER expose passwords via API
+    const baseId = window.RR_AIRTABLE_BASE || 'YOUR_BASE_ID';
+    const token  = window.RR_AIRTABLE_TOKEN || 'YOUR_PAT_TOKEN';
+    const url = `https://api.airtable.com/v0/${baseId}/Members?filterByFormula=AND({Email}="${email}",{Status}="Active")`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+    if (!data.records || !data.records.length) return null;
+    const member = data.records[0].fields;
+    // NOTE: Store hashed passwords in Airtable; use a backend to verify
+    // This is a placeholder — implement proper password hashing server-side
+    return { email, name: member.Name, role: member.Role, company: member.Company, id: data.records[0].id };
+  }
+
+  async function handleOTP() {
+    const code = Array.from(document.querySelectorAll('.otp-input')).map(i => i.value).join('');
+    const errEl = document.getElementById('otpError');
+
+    if (code.length !== 6) {
+      showError(errEl, 'Please enter all 6 digits.');
+      return;
+    }
+
+    // ── OTP VERIFICATION HOOK ────────────────────────────────
+    // Integrate with TOTP (Google Authenticator) or email OTP here
+    // Example: verify against your auth provider
+    // For MVP: skip OTP or use email link
+    // ─────────────────────────────────────────────────────────
+
+    // On success: set session and redirect
+    window.RR.Session.set(pendingUser);
+
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect');
+
+    if (pendingUser.role === 'admin') {
+      window.location.href = redirect || '/pages/admin.html';
+    } else if (pendingUser.role === 'seller') {
+      window.location.href = redirect || '/pages/seller.html';
+    } else {
+      window.location.href = redirect || '/pages/buyer.html';
+    }
+  }
+
+  function goBack() {
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step1').classList.add('active');
+    pendingUser = null;
+  }
+
+  function showError(el, msg) {
+    el.textContent = msg;
+    el.classList.add('visible');
+    setTimeout(() => el.classList.remove('visible'), 5000);
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      if (document.getElementById('step1').classList.contains('active')) handleLogin();
+      else if (document.getElementById('step2').classList.contains('active')) handleOTP();
+    }
+  });
+
+  // Redirect if already logged in
+  if (window.RR && window.RR.Session.isLoggedIn()) {
+    const role = window.RR.Session.role();
+    if (role === 'admin') window.location.href = '/pages/admin.html';
+    else if (role === 'seller') window.location.href = '/pages/seller.html';
+    else window.location.href = '/pages/buyer.html';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request Access — RevRack Exchange</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="../assets/css/main.css" />
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml" />
+  <style>
+    .apply-bg {
+      min-height: 100vh; background: #080808;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 60px 20px;
+    }
+    .apply-wrap { width: 100%; max-width: 520px; }
+    .apply-back { font-size: 11px; color: #444; display: flex; align-items: center; gap: 6px; margin-bottom: 32px; transition: color 0.15s; }
+    .apply-back:hover { color: #888; }
+    .apply-header { margin-bottom: 32px; }
+    .apply-title { font-size: 22px; font-weight: 300; color: var(--text-primary); letter-spacing: -0.3px; margin-bottom: 10px; }
+    .apply-sub { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+    .apply-requirements { background: #0f0f0f; border: 0.5px solid var(--border); border-radius: 3px; padding: 16px 18px; margin-bottom: 28px; }
+    .apply-req-title { font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .apply-req-item { font-size: 12px; color: #666; padding: 4px 0; display: flex; gap: 8px; align-items: flex-start; }
+    .apply-req-item::before { content: '—'; color: var(--red); flex-shrink: 0; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .nda-check { display: flex; align-items: flex-start; gap: 10px; margin-top: 4px; }
+    .nda-check input[type=checkbox] { margin-top: 2px; flex-shrink: 0; accent-color: var(--red); }
+    .nda-check label { font-size: 12px; color: #666; line-height: 1.5; }
+    .nda-check label a { color: #888; text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="apply-bg">
+  <div class="apply-wrap">
+    <a href="../index.html" class="apply-back">← Back to exchange</a>
+
+    <div class="apply-header">
+      <div class="auth-logo" style="margin-bottom:20px">
+        <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+          <polygon points="14,2 25,8 25,20 14,26 3,20 3,8" stroke="#333" stroke-width="1.5" fill="#111"/>
+          <line x1="8" y1="12" x2="20" y2="12" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="8" y1="16.5" x2="17" y2="16.5" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span style="font-size:15px;font-weight:500;color:var(--text-primary)">RevRack Exchange</span>
+      </div>
+      <div class="apply-title">Request access</div>
+      <div class="apply-sub">RevRack Exchange is an invitation-only marketplace. All applications are reviewed by our team within 48 hours. Approved members must execute an NDA before gaining full access.</div>
+    </div>
+
+    <div class="apply-requirements">
+      <div class="apply-req-title">Who qualifies</div>
+      <div class="apply-req-item">Institutional buyers purchasing $100K+ in AI hardware</div>
+      <div class="apply-req-item">Verified sellers with documented hardware inventory</div>
+      <div class="apply-req-item">Logistics and data center operators</div>
+      <div class="apply-req-item">Hardware brokers and resellers with track record</div>
+    </div>
+
+    <div class="auth-card">
+      <div class="form-error" id="applyError"></div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First name</label>
+          <input class="form-input" type="text" id="firstName" placeholder="James" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last name</label>
+          <input class="form-input" type="text" id="lastName" placeholder="Chen" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Work email</label>
+        <input class="form-input" type="email" id="applyEmail" placeholder="you@company.com" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Company</label>
+        <input class="form-input" type="text" id="company" placeholder="Acme Infrastructure LLC" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Title / role</label>
+        <input class="form-input" type="text" id="title" placeholder="VP of Infrastructure" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">I am applying as</label>
+        <select class="form-select" id="applyRole">
+          <option value="">— Select —</option>
+          <option value="Buyer">Buyer — looking to purchase hardware</option>
+          <option value="Seller">Seller — listing hardware for sale</option>
+          <option value="Both">Both — buying and selling</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Typical deal size</label>
+        <select class="form-select" id="dealSize">
+          <option value="">— Select —</option>
+          <option value="100K-500K">$100K – $500K</option>
+          <option value="500K-2M">$500K – $2M</option>
+          <option value="2M-10M">$2M – $10M</option>
+          <option value="10M+">$10M+</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tell us about your hardware needs or inventory</label>
+        <textarea class="form-textarea" id="message" placeholder="e.g. We are looking to procure 64× H100 SXM5 GPUs for a new cluster build in Q3. We have budget approved and can move quickly…"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">How were you referred?</label>
+        <input class="form-input" type="text" id="referral" placeholder="Name or company (optional)" />
+      </div>
+
+      <div class="nda-check" style="margin-bottom:16px">
+        <input type="checkbox" id="ndaAccept" />
+        <label for="ndaAccept">I understand that access to RevRack Exchange requires execution of a mutual NDA, and that all transaction details are strictly confidential. I agree to the <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Policy</a>.</label>
+      </div>
+
+      <button class="form-submit" id="applyBtn" onclick="handleApply()">Submit application →</button>
+
+      <div class="form-success" id="applySuccess">
+        <strong style="color:var(--green)">Application received.</strong><br>
+        Our team will review your application and respond to your email within 48 hours. If approved, you'll receive a secure invite link to complete onboarding and execute the NDA.
+      </div>
+
+      <div class="form-note">Already have access? <a href="login.html">Sign in →</a></div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script>
+  async function handleApply() {
+    const btn = document.getElementById('applyBtn');
+    const errEl = document.getElementById('applyError');
+    const successEl = document.getElementById('applySuccess');
+
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName  = document.getElementById('lastName').value.trim();
+    const email     = document.getElementById('applyEmail').value.trim();
+    const company   = document.getElementById('company').value.trim();
+    const title     = document.getElementById('title').value.trim();
+    const role      = document.getElementById('applyRole').value;
+    const dealSize  = document.getElementById('dealSize').value;
+    const message   = document.getElementById('message').value.trim();
+    const referral  = document.getElementById('referral').value.trim();
+    const nda       = document.getElementById('ndaAccept').checked;
+
+    if (!firstName || !lastName || !email || !company || !role || !dealSize) {
+      showError(errEl, 'Please fill in all required fields.');
+      return;
+    }
+    if (!nda) {
+      showError(errEl, 'You must accept the terms and NDA requirement to proceed.');
+      return;
+    }
+
+    btn.textContent = 'Submitting…';
+    btn.disabled = true;
+
+    try {
+      await window.RR.Airtable.submitApplication({
+        Name: `${firstName} ${lastName}`,
+        Email: email,
+        Company: company,
+        Title: title,
+        Role: role,
+        DealSize: dealSize,
+        Message: message,
+        Referral: referral,
+        Status: 'Pending',
+        SubmittedAt: new Date().toISOString(),
+        NDAAccepted: true,
+      });
+
+      btn.style.display = 'none';
+      successEl.classList.add('visible');
+
+    } catch (err) {
+      showError(errEl, 'Submission failed. Please email exchange@revrack.ai directly.');
+      btn.textContent = 'Submit application →';
+      btn.disabled = false;
+    }
+  }
+
+  function showError(el, msg) {
+    el.textContent = msg;
+    el.classList.add('visible');
+    setTimeout(() => el.classList.remove('visible'), 6000);
+  }
+</script>
+</body>
+</html>

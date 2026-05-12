@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seller Portal — RevRack Exchange</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="../assets/css/main.css" />
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml" />
+  <style>
+    .add-modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.75); align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto; }
+    .add-modal.open { display: flex; }
+    .add-card { background: #141414; border: 0.5px solid #333; border-radius: 4px; padding: 28px; width: 100%; max-width: 480px; }
+    .add-title { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .rfq-item { padding: 14px 16px; border-bottom: 0.5px solid #111; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .rfq-item:last-child { border-bottom: none; }
+    .rfq-info { flex: 1; }
+    .rfq-product { font-size: 13px; color: var(--text-primary); font-weight: 500; margin-bottom: 3px; }
+    .rfq-meta { font-size: 11px; color: var(--text-muted); }
+    .rfq-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .respond-btn { font-size: 11px; color: var(--green); padding: 4px 10px; border: 0.5px solid #143322; border-radius: 2px; background: #0a1a10; cursor: pointer; }
+    .decline-btn { font-size: 11px; color: #e87070; padding: 4px 10px; border: 0.5px solid #3a1010; border-radius: 2px; background: #180a0a; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<div class="portal-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+        <polygon points="14,2 25,8 25,20 14,26 3,20 3,8" stroke="#333" stroke-width="1.5" fill="#111"/>
+        <line x1="8" y1="12" x2="20" y2="12" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="8" y1="16.5" x2="17" y2="16.5" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <span>RevRack</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Seller</div>
+      <a href="seller.html" class="sidebar-link active">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        My listings
+      </a>
+      <a href="seller-rfqs.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Inbound RFQs
+      </a>
+      <a href="seller-deals.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        Closed deals
+      </a>
+      <div class="sidebar-section-label" style="margin-top:12px">Account</div>
+      <a href="profile.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebarUser">—</div>
+      <div class="sidebar-signout" data-action="signout">Sign out</div>
+    </div>
+  </aside>
+
+  <div class="portal-main">
+    <div class="portal-topbar">
+      <div class="portal-topbar-title">Seller dashboard</div>
+      <button class="btn-primary" onclick="openAddModal()">+ New listing</button>
+    </div>
+
+    <div class="portal-content">
+
+      <div class="portal-stats">
+        <div class="portal-stat">
+          <div class="stat-label">Active listings</div>
+          <div class="stat-val" id="statActive">—</div>
+        </div>
+        <div class="portal-stat">
+          <div class="stat-label">Total inventory value</div>
+          <div class="stat-val" id="statValue">—</div>
+        </div>
+        <div class="portal-stat">
+          <div class="stat-label">Open RFQs received</div>
+          <div class="stat-val" id="statRFQs">—</div>
+          <div class="stat-delta up" id="statRFQDelta"></div>
+        </div>
+        <div class="portal-stat">
+          <div class="stat-label">Deals closed</div>
+          <div class="stat-val" id="statClosed">—</div>
+        </div>
+      </div>
+
+      <!-- My listings -->
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header">
+          <span class="panel-title">My listings</span>
+          <div class="panel-actions">
+            <button class="filter-btn active" data-filter="All">All</button>
+            <button class="filter-btn" data-filter="Available">Available</button>
+            <button class="filter-btn" data-filter="Pending">Pending</button>
+            <button class="filter-btn" data-filter="Sold">Sold</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Type</th>
+                <th>Qty</th>
+                <th>Unit price</th>
+                <th>Total value</th>
+                <th>Condition</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Edit</th>
+              </tr>
+            </thead>
+            <tbody id="myListingsBody">
+              <tr><td colspan="9" style="text-align:center;padding:32px;color:#333">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Inbound RFQs panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Inbound RFQs</span>
+          <span class="panel-title" id="rfqCount" style="color:var(--red)"></span>
+        </div>
+        <div id="rfqList">
+          <div style="text-align:center;padding:28px;color:#333;font-size:13px">Loading RFQs…</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Add listing modal -->
+<div class="add-modal modal-backdrop" id="addModal">
+  <div class="add-card">
+    <div class="add-title">New listing</div>
+    <div class="form-error" id="addError"></div>
+
+    <div class="form-group">
+      <label class="form-label">Product name</label>
+      <input class="form-input" id="addName" placeholder="NVIDIA H100 SXM5 80GB" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="addCategory">
+          <option value="">—</option>
+          <option>GPU</option>
+          <option>Rack</option>
+          <option>Networking</option>
+          <option>Storage</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Condition</label>
+        <select class="form-select" id="addCondition">
+          <option value="">—</option>
+          <option>New</option>
+          <option>Refurb</option>
+          <option>Used</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Quantity</label>
+        <input class="form-input" type="number" id="addQty" placeholder="e.g. 32" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unit price ($)</label>
+        <input class="form-input" type="number" id="addPrice" placeholder="e.g. 28500" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Location</label>
+      <input class="form-input" id="addLocation" placeholder="San Jose, CA" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="addNotes" placeholder="Specs, warranty, lead time, shipping terms…"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="form-submit" style="flex:1" onclick="submitListing()">Publish listing →</button>
+      <button class="btn-ghost" style="flex:0 0 auto" onclick="closeAddModal()">Cancel</button>
+    </div>
+    <div class="form-success" id="addSuccess">Listing submitted for review. It will go live within 2 hours.</div>
+  </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script>
+  if (!window.RR.requireAuth('seller')) throw new Error('Redirect');
+  const session = window.RR.Session.get();
+  document.getElementById('sidebarUser').textContent = session.name || session.email;
+
+  async function loadMyListings() {
+    try {
+      const all = await window.RR.Airtable.getProducts();
+      // Filter by seller email
+      const mine = all.filter(p => p.SellerEmail === session.email);
+      const active = mine.filter(p => p.Status === 'Available');
+      const totalValue = active.reduce((sum, p) => sum + (p.TotalValue || 0), 0);
+
+      document.getElementById('statActive').textContent = active.length;
+      document.getElementById('statValue').textContent = window.RR.formatCurrency(totalValue);
+      document.getElementById('statClosed').textContent = mine.filter(p => p.Status === 'Sold').length;
+
+      renderSellerTable(mine);
+    } catch (e) {
+      document.getElementById('myListingsBody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#e87070">Failed to load listings.</td></tr>';
+    }
+  }
+
+  function renderSellerTable(products) {
+    const body = document.getElementById('myListingsBody');
+    if (!products.length) {
+      body.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#333">No listings yet. Click "+ New listing" to get started.</td></tr>';
+      return;
+    }
+    body.innerHTML = products.map(p => `
+      <tr>
+        <td class="td-name">${window.RR.escHtml(p.Name||'')}</td>
+        <td><span class="badge ${catClass(p.Category)}">${window.RR.escHtml(p.Category||'')}</span></td>
+        <td class="mono">${p.Quantity??'—'}</td>
+        <td class="td-price mono">${window.RR.formatCurrency(p.UnitPrice)}</td>
+        <td class="td-price mono">${window.RR.formatCurrency(p.TotalValue)}</td>
+        <td>${window.RR.escHtml(p.Condition||'')}</td>
+        <td>${window.RR.escHtml(p.Location||'')}</td>
+        <td><span class="status ${statClass(p.Status)}">${window.RR.escHtml(p.Status||'')}</span></td>
+        <td><button class="filter-btn" onclick="editListing('${p.id}')">Edit</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function catClass(c) { return {GPU:'gpu',Networking:'net',Rack:'rack',Storage:'storage'}[c]||'gpu'; }
+  function statClass(s) { return {Available:'avail','Low stock':'low',Pending:'pending',Sold:'low'}[s]||'avail'; }
+
+  function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+  function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+
+  async function submitListing() {
+    const name      = document.getElementById('addName').value.trim();
+    const category  = document.getElementById('addCategory').value;
+    const condition = document.getElementById('addCondition').value;
+    const qty       = document.getElementById('addQty').value;
+    const price     = document.getElementById('addPrice').value;
+    const location  = document.getElementById('addLocation').value.trim();
+    const notes     = document.getElementById('addNotes').value.trim();
+    const errEl     = document.getElementById('addError');
+    const successEl = document.getElementById('addSuccess');
+
+    if (!name || !category || !condition || !qty || !price || !location) {
+      errEl.textContent = 'Please fill in all required fields.'; errEl.classList.add('visible'); return;
+    }
+
+    try {
+      await window.RR.Airtable.createProduct({
+        Name: name, Category: category, Condition: condition,
+        Quantity: Number(qty), UnitPrice: Number(price),
+        TotalValue: Number(qty) * Number(price),
+        Location: location, Notes: notes,
+        SellerEmail: session.email, SellerCompany: session.company,
+        Status: 'Pending Review',
+        CreatedAt: new Date().toISOString(),
+      });
+      successEl.classList.add('visible');
+      setTimeout(() => { closeAddModal(); loadMyListings(); }, 2500);
+    } catch (e) {
+      errEl.textContent = 'Failed to submit listing.'; errEl.classList.add('visible');
+    }
+  }
+
+  function editListing(id) {
+    window.location.href = `/pages/edit-listing.html?id=${id}`;
+  }
+
+  // Mock RFQ display — replace with real Airtable RFQs table query
+  function loadRFQs() {
+    document.getElementById('statRFQs').textContent = '3';
+    document.getElementById('rfqCount').textContent = '3 new';
+    document.getElementById('rfqList').innerHTML = [
+      { product: 'NVIDIA H100 SXM5 80GB', buyer: 'Confidential buyer', qty: 32, price: '$27,000', time: '2h ago' },
+      { product: 'NVIDIA A100 PCIe 80GB', buyer: 'Confidential buyer', qty: 64, price: 'Market', time: '5h ago' },
+      { product: 'GB200 NVL72 Rack', buyer: 'Confidential buyer', qty: 1, price: '$3.0M', time: 'Yesterday' },
+    ].map(r => `
+      <div class="rfq-item">
+        <div class="rfq-info">
+          <div class="rfq-product">${r.product}</div>
+          <div class="rfq-meta">${r.buyer} · Qty: ${r.qty} · Target: ${r.price} · ${r.time}</div>
+        </div>
+        <div class="rfq-actions">
+          <button class="respond-btn">Respond</button>
+          <button class="decline-btn">Decline</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  loadMyListings();
+  loadRFQs();
+</script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — RevRack Exchange</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="../assets/css/main.css" />
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml" />
+  <style>
+    .app-item { padding: 14px 16px; border-bottom: 0.5px solid #111; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; }
+    .app-item:last-child { border-bottom: none; }
+    .app-name { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+    .app-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .app-actions { display: flex; gap: 8px; }
+    .approve-btn { font-size: 11px; color: var(--green); padding: 5px 12px; border: 0.5px solid #143322; border-radius: 2px; background: #0a1a10; cursor: pointer; }
+    .reject-btn { font-size: 11px; color: #e87070; padding: 5px 12px; border: 0.5px solid #3a1010; border-radius: 2px; background: #180a0a; cursor: pointer; }
+    .tab-bar { display: flex; border-bottom: 0.5px solid var(--border); padding: 0 28px; }
+    .tab { font-size: 12px; color: #555; padding: 12px 16px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+    .tab:hover { color: #999; }
+    .tab.active { color: var(--text-primary); border-bottom-color: var(--red); }
+    .tab-content { display: none; padding: 28px; }
+    .tab-content.active { display: block; }
+    .member-row td { font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<div class="portal-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+        <polygon points="14,2 25,8 25,20 14,26 3,20 3,8" stroke="#333" stroke-width="1.5" fill="#111"/>
+        <line x1="8" y1="12" x2="20" y2="12" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="8" y1="16.5" x2="17" y2="16.5" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <span>RevRack</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Admin</div>
+      <a href="admin.html" class="sidebar-link active">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Overview
+      </a>
+      <a href="admin-listings.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        All listings
+      </a>
+      <a href="admin-members.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/></svg>
+        Members
+      </a>
+      <a href="admin-deals.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Deals & GMV
+      </a>
+      <div class="sidebar-section-label" style="margin-top:12px">System</div>
+      <a href="admin-audit.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Audit log
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebarUser">—</div>
+      <div class="sidebar-signout" data-action="signout">Sign out</div>
+    </div>
+  </aside>
+
+  <div class="portal-main">
+    <div class="portal-topbar">
+      <div class="portal-topbar-title">Admin overview</div>
+      <div class="portal-topbar-meta" id="adminMeta">—</div>
+    </div>
+
+    <!-- Stats -->
+    <div style="padding:28px 28px 0">
+      <div class="portal-stats">
+        <div class="portal-stat">
+          <div class="stat-label">Total members</div>
+          <div class="stat-val" id="statMembers">—</div>
+        </div>
+        <div class="portal-stat">
+          <div class="stat-label">Pending applications</div>
+          <div class="stat-val text-red" id="statPending">—</div>
+        </div>
+        <div class="portal-stat">
+          <div class="stat-label">Active listings</div>
+          <div class="stat-val" id="statListings">—</div>
+        </div>
+        <div class="portal-stat">
+          <div class="stat-label">GMV all time</div>
+          <div class="stat-val" id="statGMV">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('applications')">Pending applications</div>
+      <div class="tab" onclick="switchTab('listings')">Pending listings</div>
+      <div class="tab" onclick="switchTab('members')">All members</div>
+    </div>
+
+    <!-- Applications tab -->
+    <div class="tab-content active" id="tab-applications">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Applications awaiting review</span></div>
+        <div id="applicationsList">
+          <div style="text-align:center;padding:32px;color:#333;font-size:13px">Loading applications…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending listings tab -->
+    <div class="tab-content" id="tab-listings">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Listings awaiting approval</span></div>
+        <div style="overflow-x:auto">
+          <table class="inv-table">
+            <thead>
+              <tr><th>Product</th><th>Seller</th><th>Type</th><th>Qty</th><th>Price</th><th>Submitted</th><th>Action</th></tr>
+            </thead>
+            <tbody id="pendingListingsBody">
+              <tr><td colspan="7" style="text-align:center;padding:32px;color:#333">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Members tab -->
+    <div class="tab-content" id="tab-members">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">All members</span>
+          <button class="btn-primary" onclick="inviteMember()">+ Invite member</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="inv-table">
+            <thead>
+              <tr><th>Name</th><th>Company</th><th>Role</th><th>Email</th><th>Status</th><th>Joined</th><th>Action</th></tr>
+            </thead>
+            <tbody id="membersBody">
+              <tr><td colspan="7" style="text-align:center;padding:32px;color:#333">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script>
+  if (!window.RR.requireAuth('admin')) throw new Error('Redirect');
+  const session = window.RR.Session.get();
+  document.getElementById('sidebarUser').textContent = session.name || session.email;
+  document.getElementById('adminMeta').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['applications','listings','members'][i] === name));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  async function loadApplications() {
+    try {
+      const baseId = window.RR_AIRTABLE_BASE || 'YOUR_BASE_ID';
+      const token  = window.RR_AIRTABLE_TOKEN || 'YOUR_PAT_TOKEN';
+      const url = `https://api.airtable.com/v0/${baseId}/Applications?filterByFormula={Status}="Pending"&sort[0][field]=SubmittedAt&sort[0][direction]=desc`;
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      const apps = (data.records || []).map(r => ({ id: r.id, ...r.fields }));
+
+      document.getElementById('statPending').textContent = apps.length;
+
+      if (!apps.length) {
+        document.getElementById('applicationsList').innerHTML = '<div style="text-align:center;padding:32px;color:#333;font-size:13px">No pending applications.</div>';
+        return;
+      }
+
+      document.getElementById('applicationsList').innerHTML = apps.map(a => `
+        <div class="app-item">
+          <div>
+            <div class="app-name">${window.RR.escHtml(a.Name||'')} <span style="color:#555;font-weight:400">— ${window.RR.escHtml(a.Company||'')}</span></div>
+            <div class="app-meta">${window.RR.escHtml(a.Email||'')} · ${window.RR.escHtml(a.Role||'')} · Deal size: ${window.RR.escHtml(a.DealSize||'—')} · Submitted ${new Date(a.SubmittedAt).toLocaleDateString()}</div>
+            ${a.Message ? `<div class="app-meta" style="margin-top:4px;color:#555">"${window.RR.escHtml(a.Message.slice(0,120))}…"</div>` : ''}
+          </div>
+          <div class="app-actions">
+            <button class="approve-btn" onclick="approveApp('${a.id}', this)">Approve</button>
+            <button class="reject-btn" onclick="rejectApp('${a.id}', this)">Reject</button>
+          </div>
+        </div>
+      `).join('');
+
+    } catch(e) {
+      document.getElementById('applicationsList').innerHTML = '<div style="text-align:center;padding:32px;color:#e87070;font-size:13px">Failed to load applications.</div>';
+    }
+  }
+
+  async function approveApp(id, btn) {
+    btn.textContent = '…'; btn.disabled = true;
+    const baseId = window.RR_AIRTABLE_BASE || 'YOUR_BASE_ID';
+    const token  = window.RR_AIRTABLE_TOKEN || 'YOUR_PAT_TOKEN';
+    await fetch(`https://api.airtable.com/v0/${baseId}/Applications/${id}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: { Status: 'Approved', ApprovedAt: new Date().toISOString(), ApprovedBy: session.email } }),
+    });
+    btn.closest('.app-item').style.opacity = '0.3';
+    btn.textContent = 'Approved';
+    // TODO: trigger invite email via webhook / serverless function
+  }
+
+  async function rejectApp(id, btn) {
+    btn.textContent = '…'; btn.disabled = true;
+    const baseId = window.RR_AIRTABLE_BASE || 'YOUR_BASE_ID';
+    const token  = window.RR_AIRTABLE_TOKEN || 'YOUR_PAT_TOKEN';
+    await fetch(`https://api.airtable.com/v0/${baseId}/Applications/${id}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: { Status: 'Rejected' } }),
+    });
+    btn.closest('.app-item').style.opacity = '0.3';
+    btn.textContent = 'Rejected';
+  }
+
+  async function loadPendingListings() {
+    try {
+      const products = await window.RR.Airtable.getProducts({ status: 'Pending Review' });
+      const body = document.getElementById('pendingListingsBody');
+      if (!products.length) { body.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#333">No listings pending.</td></tr>'; return; }
+      body.innerHTML = products.map(p => `
+        <tr>
+          <td class="td-name">${window.RR.escHtml(p.Name||'')}</td>
+          <td style="font-size:11px;color:#666">${window.RR.escHtml(p.SellerCompany||p.SellerEmail||'')}</td>
+          <td><span class="badge ${catClass(p.Category)}">${window.RR.escHtml(p.Category||'')}</span></td>
+          <td class="mono">${p.Quantity??'—'}</td>
+          <td class="td-price mono">${window.RR.formatCurrency(p.UnitPrice)}</td>
+          <td style="font-size:11px;color:#555">${p.CreatedAt ? new Date(p.CreatedAt).toLocaleDateString() : '—'}</td>
+          <td style="display:flex;gap:6px">
+            <button class="approve-btn" onclick="approveListing('${p.id}', this)">Approve</button>
+            <button class="reject-btn" onclick="rejectListing('${p.id}', this)">Reject</button>
+          </td>
+        </tr>
+      `).join('');
+    } catch(e) {}
+  }
+
+  function catClass(c) { return {GPU:'gpu',Networking:'net',Rack:'rack',Storage:'storage'}[c]||'gpu'; }
+
+  async function approveListing(id, btn) {
+    btn.textContent = '…'; btn.disabled = true;
+    await window.RR.Airtable.updateProduct(id, { Status: 'Available' });
+    btn.closest('tr').style.opacity = '0.3';
+  }
+
+  async function rejectListing(id, btn) {
+    btn.textContent = '…'; btn.disabled = true;
+    await window.RR.Airtable.updateProduct(id, { Status: 'Rejected' });
+    btn.closest('tr').style.opacity = '0.3';
+  }
+
+  function inviteMember() {
+    const email = prompt('Enter email to invite:');
+    if (email) alert(`Invite sent to ${email}\n(Wire up email provider in admin-invite.js)`);
+  }
+
+  // Placeholder member stats
+  document.getElementById('statMembers').textContent = '318';
+  document.getElementById('statListings').textContent = '142';
+  document.getElementById('statGMV').textContent = '$84.3M';
+  document.getElementById('membersBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#333;font-size:13px">Connect Members table in Airtable to populate.</td></tr>';
+
+  loadApplications();
+  loadPendingListings();
+</script>
+</body>
+</html>

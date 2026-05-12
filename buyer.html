@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buyer Portal — RevRack Exchange</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="../assets/css/main.css" />
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml" />
+  <style>
+    .product-row { cursor: pointer; }
+    .rfq-modal {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.7);
+      align-items: center; justify-content: center;
+    }
+    .rfq-modal.open { display: flex; }
+    .rfq-card { background: #141414; border: 0.5px solid #333; border-radius: 4px; padding: 28px; width: 100%; max-width: 420px; }
+    .rfq-title { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    .rfq-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+    .search-bar { width: 100%; background: #0f0f0f; border: 0.5px solid #222; border-radius: 3px; padding: 9px 12px; font-size: 13px; color: #ccc; font-family: inherit; margin-bottom: 16px; }
+    .search-bar:focus { outline: none; border-color: #333; }
+    .search-bar::placeholder { color: #333; }
+    .empty-state { padding: 48px; text-align: center; color: var(--text-muted); font-size: 13px; }
+    .loading-row td { color: #333; font-size: 12px; text-align: center; padding: 32px; }
+  </style>
+</head>
+<body>
+
+<div class="portal-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+        <polygon points="14,2 25,8 25,20 14,26 3,20 3,8" stroke="#333" stroke-width="1.5" fill="#111"/>
+        <line x1="8" y1="12" x2="20" y2="12" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="8" y1="16.5" x2="17" y2="16.5" stroke="#e8440a" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <span>RevRack</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Buyer</div>
+      <a href="buyer.html" class="sidebar-link active">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Exchange
+      </a>
+      <a href="my-rfqs.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        My RFQs
+      </a>
+      <a href="watchlist.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        Watchlist
+      </a>
+      <div class="sidebar-section-label" style="margin-top:12px">Account</div>
+      <a href="profile.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a>
+      <a href="nda.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        NDA & Docs
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebarUser">—</div>
+      <div class="sidebar-signout" data-action="signout">Sign out</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="portal-main">
+    <div class="portal-topbar">
+      <div>
+        <div class="portal-topbar-title">AI Hardware Exchange</div>
+      </div>
+      <div class="portal-topbar-meta" id="topbarMeta">Loading…</div>
+    </div>
+
+    <div class="portal-content">
+
+      <!-- Stats -->
+      <div class="portal-stats">
+        <div class="portal-stat">
+          <div class="stat-label">Available listings</div>
+          <div class="stat-val" id="statListings">—</div>
+        </div>
+        <div class="portal-stat">
+          <div class="stat-label">My open RFQs</div>
+          <div class="stat-val" id="statRFQs">0</div>
+        </div>
+        <div class="portal-stat">
+          <div class="stat-label">Watchlist items</div>
+          <div class="stat-val" id="statWatch">0</div>
+        </div>
+        <div class="portal-stat">
+          <div class="stat-label">Last updated</div>
+          <div class="stat-val" id="statTime" style="font-size:13px">—</div>
+        </div>
+      </div>
+
+      <!-- Inventory panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Live inventory</span>
+          <div class="panel-actions">
+            <button class="filter-btn active" data-filter="All">All</button>
+            <button class="filter-btn" data-filter="GPU">GPU</button>
+            <button class="filter-btn" data-filter="Rack">Rack</button>
+            <button class="filter-btn" data-filter="Networking">Networking</button>
+            <button class="filter-btn" data-filter="Storage">Storage</button>
+          </div>
+        </div>
+
+        <input class="search-bar" id="searchBar" placeholder="Search products, location, condition…" />
+
+        <div style="overflow-x:auto">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Type</th>
+                <th>Qty</th>
+                <th>Unit price</th>
+                <th>Total value</th>
+                <th>Condition</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="productTableBody">
+              <tr class="loading-row"><td colspan="9">Loading inventory…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- RFQ Modal -->
+<div class="rfq-modal modal-backdrop" id="rfqModal">
+  <div class="rfq-card">
+    <div class="rfq-title">Submit RFQ</div>
+    <div class="rfq-sub">Request for quote — our team will respond within 24 hours.</div>
+
+    <div class="form-error" id="rfqError"></div>
+
+    <div class="form-group">
+      <label class="form-label">Quantity requested</label>
+      <input class="form-input" type="number" id="rfqQty" placeholder="e.g. 16" min="1" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Target price per unit (optional)</label>
+      <input class="form-input" type="number" id="rfqPrice" placeholder="e.g. 27000" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="rfqNotes" placeholder="Delivery timeline, inspection requirements, location preferences…"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="form-submit" style="flex:1" onclick="submitRFQ()">Submit RFQ →</button>
+      <button class="btn-ghost" style="flex:0 0 auto" onclick="window.RR.closeRFQModal()">Cancel</button>
+    </div>
+    <div class="form-success" id="rfqSuccess">RFQ submitted. We'll be in touch within 24 hours.</div>
+  </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script>
+  // Auth guard
+  if (!window.RR.requireAuth()) throw new Error('Redirect');
+
+  const session = window.RR.Session.get();
+  document.getElementById('sidebarUser').textContent = session.name || session.email;
+  document.getElementById('topbarMeta').textContent = `Welcome, ${session.company || session.name}`;
+
+  let allProducts = [];
+  let activeFilter = 'All';
+
+  async function loadInventory() {
+    try {
+      allProducts = await window.RR.Airtable.getProducts();
+      document.getElementById('statListings').textContent = allProducts.filter(p => p.Status === 'Available').length;
+      document.getElementById('statTime').textContent = new Date().toLocaleTimeString();
+      renderFiltered();
+    } catch (err) {
+      document.getElementById('productTableBody').innerHTML =
+        '<tr><td colspan="9" style="text-align:center;padding:32px;color:#e87070">Failed to load inventory. Please refresh.</td></tr>';
+    }
+  }
+
+  function renderFiltered() {
+    const query = document.getElementById('searchBar').value.toLowerCase();
+    let filtered = allProducts;
+    if (activeFilter !== 'All') filtered = filtered.filter(p => p.Category === activeFilter);
+    if (query) filtered = filtered.filter(p =>
+      (p.Name||'').toLowerCase().includes(query) ||
+      (p.Location||'').toLowerCase().includes(query) ||
+      (p.Condition||'').toLowerCase().includes(query)
+    );
+    window.RR.renderProductTable(filtered, 'productTableBody', { showActions: true });
+  }
+
+  document.getElementById('searchBar').addEventListener('input', renderFiltered);
+
+  window.RR.initFilterButtons((filter) => {
+    activeFilter = filter;
+    renderFiltered();
+  });
+
+  async function submitRFQ() {
+    const productId = document.getElementById('rfqModal').dataset.productId;
+    const qty   = document.getElementById('rfqQty').value;
+    const price = document.getElementById('rfqPrice').value;
+    const notes = document.getElementById('rfqNotes').value;
+    const errEl = document.getElementById('rfqError');
+    const successEl = document.getElementById('rfqSuccess');
+
+    if (!qty) { errEl.textContent = 'Please enter a quantity.'; errEl.classList.add('visible'); return; }
+
+    try {
+      await window.RR.Airtable.submitRFQ({
+        ProductID: productId,
+        BuyerEmail: session.email,
+        BuyerCompany: session.company,
+        Quantity: Number(qty),
+        TargetPrice: price ? Number(price) : null,
+        Notes: notes,
+        Status: 'Submitted',
+        SubmittedAt: new Date().toISOString(),
+      });
+      successEl.classList.add('visible');
+      setTimeout(() => window.RR.closeRFQModal(), 2500);
+    } catch (err) {
+      errEl.textContent = 'Failed to submit. Please try again.'; errEl.classList.add('visible');
+    }
+  }
+
+  loadInventory();
+</script>
+</body>
+</html>
