@@ -2,7 +2,7 @@
 
 Private invite-only marketplace for institutional AI hardware transactions.
 
-## Tech stack
+## Tech stack 
 
 - **Frontend**: Vanilla HTML/CSS/JS — no build step, deploys directly to GitHub Pages
 - **Database / inventory**: Airtable (REST API via Personal Access Token)
